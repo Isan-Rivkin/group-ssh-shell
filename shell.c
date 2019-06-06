@@ -20,13 +20,30 @@ char* build_ssh_command(char * terminal_cmd, char * user_name, char * ip){
     strcat(ssh_with_terminal_cmd,"'");
     return ssh_with_terminal_cmd;
 }
+char * build_terminal_launch_cmd(){
+    #ifdef _WIN32
+    return "win32";
+    #elif _WIN64
+    return "win64";
+    #elif __unix || __unix__
+    return "gnome-terminal -x sh -c '";
+    #elif __APPLE__ || __MACH__
+    return "macOS";
+    #elif __linux__
+    return "gnome-terminal -x sh -c '"
+    #elif __FreeBSD__
+    return "freeBSD";
+    #else
+    return "other";
+    #endif
+}
 int main(int argc, char *argv[]) {
     // input must have a user name param and atleast 1 ip address 
     if(argc < 3){
         return -1; 
     }
     char* user_name = argv[1]; 
-    char * terminal_cmd = "gnome-terminal -x sh -c '";
+    char * terminal_cmd = build_terminal_launch_cmd();
     for(int i=2;i<argc;i++){
         // build the ssh command 
         char * ip = argv[i];
