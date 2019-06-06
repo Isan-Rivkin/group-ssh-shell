@@ -6,10 +6,18 @@ char* build_ssh_command(char * terminal_cmd, char * user_name, char * ip){
     if(ssh_cmd == NULL){
         return NULL;
     }
-    strcpy(ssh_cmd,"ssh ");
+    #ifdef __APPLE__ || __MACH__
+    strcpy(ssh_cmd,"\"");
+    #elif
+    strcpy(ssh_cmd,"");
+    #endif
+    strcat(ssh_cmd,"ssh ");
     strcat(ssh_cmd,user_name);
     strcat(ssh_cmd,"@");
     strcat(ssh_cmd,ip);
+    #ifdef __APPLE__ || __MACH__
+    strcat(ssh_cmd,"\"");
+    #endif
     // append the ssh command with terminal openning 
     char * ssh_with_terminal_cmd = (char *) malloc(2 + strlen(terminal_cmd)+ strlen(ssh_cmd));
     if(ssh_with_terminal_cmd == NULL){
@@ -28,7 +36,7 @@ char * build_terminal_launch_cmd(){
     #elif __unix || __unix__
     return "gnome-terminal -x sh -c '";
     #elif __APPLE__ || __MACH__
-    return "macOS";
+    return "osascript -e 'tell application \"Terminal.app\" to do script ";
     #elif __linux__
     return "gnome-terminal -x sh -c '"
     #elif __FreeBSD__
@@ -48,6 +56,7 @@ int main(int argc, char *argv[]) {
         // build the ssh command 
         char * ip = argv[i];
         //gnome-terminal -x sh -c 'ssh user_name@ip'
+        //osascript -e 'tell application Terminal.app to do script "ssh yoav.yanilov@10.10.16.100"'
         char * ssh_with_terminal_cmd = build_ssh_command(terminal_cmd,user_name,ip);
         if(ssh_with_terminal_cmd == NULL){
             return -2; 
